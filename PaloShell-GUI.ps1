@@ -15,7 +15,7 @@ $inputXML = @"
         <RadioButton x:Name="Connected_Users_Button" Content="Connected now" HorizontalAlignment="Left" Margin="23,145,0,0" VerticalAlignment="Top" Height="14" Width="107" />
         <RadioButton x:Name="Previous_Users_Button" Content="Was connected" HorizontalAlignment="Left" Margin="23,164,0,0" VerticalAlignment="Top" Height="15" Width="105"/>
         <DatePicker x:Name="Datepicker" HorizontalAlignment="Left" Margin="133,160,0,0" VerticalAlignment="Top" BorderThickness="0" Height="20" Width="105" IsEnabled="False" />
-        <Image x:Name="Logo" HorizontalAlignment="Left" Height="100" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Source="N:\logo.png"/>
+        <Image x:Name="Logo" HorizontalAlignment="Left" Height="100" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Source="logo.png"/>
         <TextBlock x:Name="Header_Text" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Margin="23,121,0,0" Height="19" Width="95">
           <Run Text="Check VPN users" Foreground="#FF1A3B81" />
         </TextBlock>
