@@ -55,7 +55,7 @@ Add-Type -Name Window -Namespace Console -MemberDefinition '
 $fw_hostname = "<INSERT FIREWALL HOSTNAME OR IP HERE>"
 $url = "https://$fw_hostname/api/?key="
 $homedir = $env:homedrive+$env:homepath
-$default_path = "H:\"
+$default_path = $env:homedrive
 $keyfile = $homedir+"palo_alto.key"
 
 ##############################
