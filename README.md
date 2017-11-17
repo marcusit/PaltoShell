@@ -1,6 +1,6 @@
 # PaltoShell
 A simple PowerShell GUI to query a Palo Alto firewall.
-Right now the only function is to check for AnyConnect VPN users.
+Right now the only function is to check for GlobalProtect VPN users.
 
 ![alt text](https://raw.githubusercontent.com/marcusit/PaltoShell/master/paltoshell.png)
 
