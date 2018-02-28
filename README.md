@@ -14,3 +14,6 @@ In the "VARIABLES" section the following needs to be adjusted:
 # System Requirements
 * Microsoft .NET (tested with version 4.6.2)
 * PowerShell version 4.0 or higher
+
+# Palo Alto Firewall Permissions Needed
+* "Operational Request" XML API right (Device > Admin Roles)
