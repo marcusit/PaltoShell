@@ -39,7 +39,7 @@ $InputXML = $InputXML -Replace 'mc:Ignorable="d"','' -Replace "x:N",'N'  -Replac
 [xml]$XAML = $InputXML
 $Reader=(New-Object System.Xml.XmlNodeReader $XAML)
 Try { $Form=[Windows.Markup.XamlReader]::Load( $Reader ) }
-Catch { Write-Host "Unable to load Windows.Markup.XamlReader. Double-check syntax and ensure .net is installed." }
+Catch { Write-Host "Unable to load Windows.Markup.XamlReader. Double-check syntax and ensure .Net is installed." }
 $XAML.SelectNodes("//*[@Name]") | % { Set-Variable -Name "WPF$($_.Name)" -Value $Form.FindName($_.Name) }
 
 Add-Type -Name Window -Namespace Console -MemberDefinition '
@@ -80,7 +80,7 @@ Function New_API_Key {
   $pass = Get-Credential -Credential $env:userdomain\$env:username
   if (-Not ($pass)) { Return }
   $plainpass = $pass.GetNetworkCredential().Password
-  $key_url = "https://$fw_hostname/api/?type=keygen&user="+$env:username+"&password="+$plainpass
+  $key_url = "https://"+$fw_hostname+"/api/?type=keygen&user="+$env:username+"&password="+$plainpass
   $KeyClient = New-Object System.Net.WebClient
   [xml]$get_api_key = $KeyClient.DownloadString($key_url)
   $get_api_key.response.result.key > $keyfile
@@ -118,7 +118,6 @@ Function Query {
     } else {
       $query_url = $url+$key+"&?type=op&cmd=<show><global-protect-gateway><previous-user%2F><%2Fglobal-protect-gateway><%2Fshow>"
     }
-    Write-Host $query_url
     [xml]$global:result = $WebClient.DownloadString($query_url)
     if ($WPFConnected_Users_Button.IsChecked) {
       Results_Header
