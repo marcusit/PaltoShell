@@ -12,9 +12,10 @@ $inputXML = @"
         <TextBox x:Name="Found_or_Missing" HorizontalAlignment="Left" Height="20" Margin="163,15,0,0" TextWrapping="Wrap" Text="Missing" VerticalAlignment="Top" Width="47" />
         <Button x:Name="Generate_Button" Content="Generate Key" HorizontalAlignment="Left" Margin="120,39,0,0" VerticalAlignment="Top" Width="93" Height="20" IsEnabled="False" />
         <CheckBox x:Name="Force_Checkbox" Content="Force" HorizontalAlignment="Left" Margin="120,65,0,0" VerticalAlignment="Top" Height="17" Width="52" />
-        <RadioButton x:Name="Connected_Users_Button" Content="Connected now" HorizontalAlignment="Left" Margin="23,145,0,0" VerticalAlignment="Top" Height="14" Width="107" />
-        <RadioButton x:Name="Previous_Users_Button" Content="Was connected" HorizontalAlignment="Left" Margin="23,164,0,0" VerticalAlignment="Top" Height="15" Width="105"/>
-        <DatePicker x:Name="Datepicker" HorizontalAlignment="Left" Margin="133,160,0,0" VerticalAlignment="Top" BorderThickness="0" Height="20" Width="105" IsEnabled="False" />
+        <RadioButton x:Name="Connected_Users_Button" Content="Connected now" HorizontalAlignment="Left" Margin="23,138,0,0" VerticalAlignment="Top" Height="14" Width="107" />
+        <RadioButton x:Name="Previous_Users_Button" Content="Was connected" HorizontalAlignment="Left" Margin="23,155,0,0" VerticalAlignment="Top" Height="15" Width="105"/>
+        <RadioButton x:Name="Total_Users_Button" Content="All time" HorizontalAlignment="Left" Margin="23,172,0,0" VerticalAlignment="Top" Height="15" Width="105"/>
+        <DatePicker x:Name="Datepicker" HorizontalAlignment="Left" Margin="133,151,0,0" VerticalAlignment="Top" BorderThickness="0" Height="20" Width="105" IsEnabled="False" />
         <Image x:Name="Logo" HorizontalAlignment="Left" Height="100" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Source="N:\logo.png"/>
         <TextBlock x:Name="Header_Text" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Margin="23,121,0,0" Height="19" Width="95">
           <Run Text="Check VPN users" Foreground="#FF1A3B81" />
@@ -79,7 +80,7 @@ Function New_API_Key {
   $pass = Get-Credential -Credential $env:userdomain\$env:username
   if (-Not ($pass)) { Return }
   $plainpass = $pass.GetNetworkCredential().Password
-  $key_url = "https://"+$fw_hostname+"/api/?type=keygen&user="+$env:username+"&password="+$plainpass
+  $key_url = "https://$fw_hostname/api/?type=keygen&user="+$env:username+"&password="+$plainpass
   $KeyClient = New-Object System.Net.WebClient
   [xml]$get_api_key = $KeyClient.DownloadString($key_url)
   $get_api_key.response.result.key > $keyfile
@@ -114,9 +115,10 @@ Function Query {
     $key = Get-Content $keyfile
     if ($WPFConnected_Users_Button.IsChecked) {
       $query_url = $url+$key+"&?type=op&cmd=<show><global-protect-gateway><current-user%2F><%2Fglobal-protect-gateway><%2Fshow>"
-    } elseif ($WPFPrevious_Users_Button.IsChecked) {
+    } else {
       $query_url = $url+$key+"&?type=op&cmd=<show><global-protect-gateway><previous-user%2F><%2Fglobal-protect-gateway><%2Fshow>"
     }
+    Write-Host $query_url
     [xml]$global:result = $WebClient.DownloadString($query_url)
     if ($WPFConnected_Users_Button.IsChecked) {
       Results_Header
@@ -173,6 +175,26 @@ Function Query {
           $WPFCount.Text = "Total number of users: $n"
         }
       }
+    } elseif ($WPFTotal_Users_Button.IsChecked) {
+      Results_Header
+      $result.response.result.entry | Sort-Object username | foreach {
+        $AD_username = (Get-Aduser -Properties Displayname $_.username).DisplayName    
+        if ($AD_username.Length -eq 4) {
+          $padding = "`t`t`t`t`t"
+        } elseif ($AD_username.Length -lt 7) {
+          $padding = "`t`t`t`t"
+        } elseif ($AD_username.Length -le 13) {
+          $padding = "`t`t`t"
+        } elseif ($AD_username.Length -le 19) {
+          $padding = "`t`t"
+        } elseif ($AD_username.Length -gt 19) {
+          $padding = "`t"
+        }
+        $WPFResults_Box.AddText( $AD_username + $padding + $_."login-time".Substring(0,$_."login-time".Length-3) )
+        #$AD_username | Out-File -Append N:\users.txt
+      }
+      $number_of_users = ($result.response.result.entry.username).count
+      $WPFCount.Text = "Total number of users: $number_of_users"
     }
   }
 }
@@ -199,8 +221,9 @@ $WPFForce_Checkbox.Add_Click({
   if ( $WPFForce_Checkbox.IsChecked ) { $WPFGenerate_Button.IsEnabled = $true }
   elseif ($WPFFound_or_Missing.Text -like "Found") { $WPFGenerate_Button.IsEnabled = $false }
 })
-$WPFPrevious_Users_Button.Add_Click({ $WPFDatepicker.IsEnabled = $true })
 $WPFConnected_Users_Button.Add_Click({ $WPFDatepicker.IsEnabled = $false })
+$WPFPrevious_Users_Button.Add_Click({ $WPFDatepicker.IsEnabled = $true })
+$WPFTotal_Users_Button.Add_Click({ $WPFDatepicker.IsEnabled = $false })
 $WPFGenerate_Button.Add_Click({ New_API_Key ; Key_Test })
 $WPFSave_Button.Add_Click({ $Save_Path = Get-FileName $default_path ; Export_Results })
 $WPFQuery_Button.Add_Click({ Clear-Results ; Query })
