@@ -84,7 +84,8 @@ Function New_API_Key {
   $pass = Get-Credential -Credential $env:userdomain\$env:username
   if (-Not ($pass)) { Return }
   $plainpass = $pass.GetNetworkCredential().Password
-  $key_url = "https://"+$fw_hostname+"/api/?type=keygen&user="+$env:username+"&password="+$plainpass
+  $key_url = "https://"+$fw_hostname+"/api/?type=keygen&user="+$pass.UserName+"&password="+$plainpass
+  write-host $key_url
   $KeyClient = New-Object System.Net.WebClient
   [xml]$get_api_key = $KeyClient.DownloadString($key_url)
   $get_api_key.response.result.key > $keyfile
@@ -139,7 +140,8 @@ Function Query {
         } elseif ($AD_username.Length -gt 19) {
           $padding = "`t"
         }
-        $WPFResults_Box.AddText( $AD_username + $padding + $_."login-time".Substring(0,$_."login-time".Length-3) )
+        if ($AD_username) {$WPFResults_Box.AddText( $AD_username + $padding + $_."login-time".Substring(0,$_."login-time".Length-3) )}
+        else {$WPFResults_Box.AddText( $_.username + "`t" + $_."login-time".Substring(0,$_."login-time".Length-3) )}
       }
       $number_of_users = ($result.response.result.entry.username).count
       $WPFCount.Text = "Total number of users: $number_of_users"
